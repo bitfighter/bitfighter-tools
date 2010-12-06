@@ -16,9 +16,9 @@ server_side_clone="https://bitfighter.googlecode.com/hg/"
 
 
 # Check for mercurial
-svn="`which hg`"
+hg="`which hg`"
 
-if [ -z $svn ]
+if [ -z $hg ]
 then
     echo "This script requires mercurial Please install it."
     exit 1

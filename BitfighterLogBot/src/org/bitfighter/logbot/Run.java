@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Launcher for BitfighterLogBot
@@ -20,18 +19,10 @@ public class Run {
     
     public static void main(String[] args) throws Exception {
         
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(new File("./config.ini")));
+        BotConfig config = new BotConfig();
         
-        String server = properties.getProperty("Server", "irc.freenode.net");
-        String channel = properties.getProperty("Channel", "#bitfighter");
-        String nick = properties.getProperty("Nick", "LogBot2");
-        String joinMessage = properties.getProperty("JoinMessage", "This channel is logged.");
-        String debug = properties.getProperty("Debug", "false");
-        
-        boolean enableDebug = debug.equalsIgnoreCase("true") ? true : false;
-        
-        File outDir = new File(properties.getProperty("OutputDir", "./output/"));
+        /* Set up basic output structure and files */
+        File outDir = new File(config.getOutputDirectory());
         outDir.mkdirs();
         if (!outDir.isDirectory()) {
             System.out.println("Cannot make output directory (" + outDir + ")");
@@ -45,22 +36,22 @@ public class Run {
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outDir, "config.inc.php")));
         writer.write("<?php");
         writer.newLine();
-        writer.write("    $server = \"" + server + "\";");
+        writer.write("    $server = \"" + config.getServer() + "\";");
         writer.newLine();
-        writer.write("    $channel = \"" + channel + "\";");
+        writer.write("    $channel = \"" + config.getChannel() + "\";");
         writer.newLine();
-        writer.write("    $nick = \"" + nick + "\";");
+        writer.write("    $nick = \"" + config.getNick() + "\";");
         writer.newLine();
         writer.write("?>");
         writer.flush();
         writer.close();
         
         /* Initialize the bot and connect! */
-        BitfighterLogBot bot = new BitfighterLogBot(server, channel, nick, outDir, joinMessage);
+        BitfighterLogBot bot = new BitfighterLogBot(config);
 		bot.setAutoNickChange(true);
-        bot.setVerbose(enableDebug);
-        bot.connect(server);
-        bot.joinChannel(channel);
+        bot.setVerbose(config.isDebug());
+        bot.connect(config.getServer());
+        bot.joinChannel(config.getChannel());
     }
     
 

@@ -47,29 +47,20 @@ public class BitfighterLogBot extends PircBot {
 	
 	private static final String COMMANDS_FILENAME = "./commands.ini";
 
-	private static final String feed = "http://code.google.com/feeds/p/bitfighter/hgchanges/basic";
-
-	private String server;
-	private String channel;
-	private File outDir;
-	private String joinMessage;
-
 	private static KeepAliveThread keepAliveThread = null;
-	private static FeedReaderThread feedReaderThread = null;
+	private static FeedNotifierThread feedReaderThread = null;
 
 	private static Properties botCommands;
 	private static String commandList;
+	
+	private static BotConfig config;
 
-	public BitfighterLogBot(String server, String channel, String name, File outDir, String joinMessage) {
-		setName(name);
-		setLogin(name);
+	public BitfighterLogBot(BotConfig botConfig) {
+		config = botConfig;
+		setName(config.getNick());
+		setLogin(config.getNick());
 		
 		populateResponses();
-
-		this.server = server;
-		this.channel = channel;
-		this.outDir = outDir;
-		this.joinMessage = joinMessage;
 	}
 
 	private void populateResponses() {
@@ -113,7 +104,7 @@ public class BitfighterLogBot extends PircBot {
 			Date now = new Date();
 			String date = DATE_FORMAT.format(now);
 			String time = TIME_FORMAT.format(now);
-			File file = new File(outDir, date + ".log");
+			File file = new File(config.getOutputDirectory(), date + ".log");
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 			String entry = "<span class=\"irc-date\">[" + time + "]</span> <span class=\"" + color + "\">" + line + "</span><br />";
 			writer.write(entry);
@@ -133,10 +124,10 @@ public class BitfighterLogBot extends PircBot {
 	public void onJoin(String channel, String sender, String login, String hostname) {
 		append(GREEN, "* " + sender + " (" + login + "@" + hostname + ") has joined " + channel);
 		if (sender.equals(getNick())) {
-			sendNotice(channel, joinMessage);
+			sendNotice(channel, config.getJoinMessage());
 		}
 		else {
-			sendNotice(sender, joinMessage);
+			sendNotice(sender, config.getJoinMessage());
 		}
 	}
 
@@ -151,7 +142,7 @@ public class BitfighterLogBot extends PircBot {
 		}
 		
 		if (message.equals("!log")) {
-			sendMessage(channel, joinMessage);
+			sendMessage(channel, config.getJoinMessage());
 			return;
 		}
 		
@@ -223,36 +214,18 @@ public class BitfighterLogBot extends PircBot {
 	}
 
 	public void onConnect() {
-		if (keepAliveThread == null)
-			keepAliveThread = new KeepAliveThread(this);
-
-		keepAliveThread.start();
-		
-		if (feedReaderThread == null)
-			feedReaderThread = new FeedReaderThread(this, channel, feed);
-
-		feedReaderThread.start();
+		startThreads();
 	}
 
 	public void onDisconnect() {
 		append(NAVY, "* Disconnected.");
 
-		if (keepAliveThread != null) {
-			keepAliveThread.finish();
-			keepAliveThread.interrupt();
-			keepAliveThread = null;
-		}
-
-		if (feedReaderThread != null) {
-			feedReaderThread.finish();
-			feedReaderThread.interrupt();
-			feedReaderThread = null;
-		}
+		stopThreads();
 
 		while (!isConnected()) {
 			try {
-				connect(server);
-				joinChannel(channel);
+				connect(config.getServer());
+				joinChannel(config.getChannel());
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -265,5 +238,35 @@ public class BitfighterLogBot extends PircBot {
 			}
 		}
 	}
+	
+	private void startThreads() {
 
+		if (keepAliveThread == null)
+			keepAliveThread = new KeepAliveThread(this);
+
+		keepAliveThread.start();
+		
+		if (config.hasFeed()) {
+			if (feedReaderThread == null)
+				feedReaderThread = new FeedNotifierThread(this, config.getChannel(), config.getFeedUrlString());
+	
+			feedReaderThread.start();
+		}
+	}
+
+	
+	private void stopThreads() {
+
+		if (keepAliveThread != null) {
+			keepAliveThread.finish();
+			keepAliveThread.interrupt();
+			keepAliveThread = null;
+		}
+
+		if (feedReaderThread != null) {
+			feedReaderThread.finish();
+			feedReaderThread.interrupt();
+			feedReaderThread = null;
+		}
+	}
 }

@@ -47,12 +47,15 @@ public class BitfighterLogBot extends PircBot {
 	
 	private static final String COMMANDS_FILENAME = "./commands.ini";
 
+	private static final String feed = "http://code.google.com/feeds/p/bitfighter/hgchanges/basic";
+
 	private String server;
 	private String channel;
 	private File outDir;
 	private String joinMessage;
 
 	private static KeepAliveThread keepAliveThread = null;
+	private static FeedReaderThread feedReaderThread = null;
 
 	private static Properties botCommands;
 	private static String commandList;
@@ -224,6 +227,11 @@ public class BitfighterLogBot extends PircBot {
 			keepAliveThread = new KeepAliveThread(this);
 
 		keepAliveThread.start();
+		
+		if (feedReaderThread == null)
+			feedReaderThread = new FeedReaderThread(this, channel, feed);
+
+		feedReaderThread.start();
 	}
 
 	public void onDisconnect() {
@@ -233,6 +241,12 @@ public class BitfighterLogBot extends PircBot {
 			keepAliveThread.finish();
 			keepAliveThread.interrupt();
 			keepAliveThread = null;
+		}
+
+		if (feedReaderThread != null) {
+			feedReaderThread.finish();
+			feedReaderThread.interrupt();
+			feedReaderThread = null;
 		}
 
 		while (!isConnected()) {

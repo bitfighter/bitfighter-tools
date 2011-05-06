@@ -56,16 +56,29 @@ public class Run {
     
 
 
-	public static void copy(File source, File target) throws IOException {
-		BufferedInputStream input = new BufferedInputStream(new FileInputStream(source));
-		BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(target));
-		int bytesRead = 0;
-		byte[] buffer = new byte[1024];
-		while ((bytesRead = input.read(buffer, 0, buffer.length)) != -1) {
-			output.write(buffer, 0, bytesRead);
+	public static void copy(File source, File target) {
+		BufferedInputStream input = null;
+		BufferedOutputStream output = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(source));
+			output = new BufferedOutputStream(new FileOutputStream(target));
+			int bytesRead = 0;
+			byte[] buffer = new byte[1024];
+			while ((bytesRead = input.read(buffer, 0, buffer.length)) != -1) {
+				output.write(buffer, 0, bytesRead);
+			}
+			output.flush();
 		}
-		output.flush();
-		output.close();
-		input.close();
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				output.close();
+				input.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

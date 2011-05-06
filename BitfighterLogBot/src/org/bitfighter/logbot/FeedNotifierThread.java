@@ -16,8 +16,7 @@ public class FeedNotifierThread extends Thread {
 	private PircBot bot;
     private String channel;
 
-	private static final long SLEEP_DELAY = 5000l; 
-//	private static final long SLEEP_DELAY = 600000l;  // 10 min
+	private static final long SLEEP_DELAY = 600000l;  // 10 min
 	private static final long INITIAL_SLEEP_DELAY = 15000l;  // 15 sec
 	private static final long SEND_DELAY = 1500l;  // 1.5 sec
 	
@@ -124,11 +123,6 @@ public class FeedNotifierThread extends Thread {
 	        		}
 				}
 			}
-
-			feedCache.add("54325432543254325432543254e432325432");
-			feedCache.add("54325432543254325432543254325432");
-			feedCache.add("5432543254325432543254325r324325432");
-			feedCache.add("543254325432543254325432rewq54325432");
 			
 			// cycle the cache
 			if (feedCache.size() > CACHE_SIZE) {

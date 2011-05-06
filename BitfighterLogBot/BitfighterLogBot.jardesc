@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="/home/dbuck/code/jars/BitfighterLogBot.jar"/>
+    <jar path="BitfighterLogBot/lib/BitfighterLogBot.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/BitfighterLogBot/createJAR.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="false" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>

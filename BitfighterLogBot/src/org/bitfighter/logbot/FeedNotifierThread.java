@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jibble.pircbot.PircBot;
 import org.json.JSONObject;
 import org.json.XML;
@@ -15,14 +16,13 @@ public class FeedNotifierThread extends Thread {
 
 	private PircBot bot;
     private String channel;
+    private String feedUrl;
 
 	private static final long SLEEP_DELAY = 600000l;  // 10 min
 	private static final long INITIAL_SLEEP_DELAY = 15000l;  // 15 sec
 	private static final long SEND_DELAY = 1500l;  // 1.5 sec
 	
 	private static int CACHE_SIZE = 20;
-	
-    private static URL feedUrl;
     
     private static LinkedHashSet<String> feedCache = new LinkedHashSet<String>();
     
@@ -31,7 +31,7 @@ public class FeedNotifierThread extends Thread {
 		try {
 			this.channel = channel;
 			this.bot = bot;
-			feedUrl = new URL(url);
+			this.feedUrl = url;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -82,7 +82,7 @@ public class FeedNotifierThread extends Thread {
 		try {
 			feedList = new LinkedList<AtomData>();
 
-			String xmlString = Util.convertStreamToString(feedUrl.openStream());
+			String xmlString = Util.convertStreamToString(new URL(feedUrl).openStream());
 			JSONObject json = XML.toJSONObject(xmlString);
 
 			for (int i = 0; i < json.getJSONObject("feed").getJSONArray("entry").length(); i ++) {
@@ -91,7 +91,7 @@ public class FeedNotifierThread extends Thread {
 				String id = entry.getString("id");
 				String commit = id.substring(id.lastIndexOf('/') + 1).substring(0, 12);
 				String author = entry.getJSONObject("author").getString("name");
-				String content = entry.getJSONObject("content").getString("content");
+				String content = StringEscapeUtils.unescapeHtml(entry.getJSONObject("content").getString("content"));
 				String log = content.substring(content.lastIndexOf("<br/>") + 5).replaceAll("\\n", " ");
 
 				feedList.add(new AtomData(id, commit, author, log));

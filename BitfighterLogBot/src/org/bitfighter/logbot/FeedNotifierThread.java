@@ -116,6 +116,10 @@ public class FeedNotifierThread extends Thread {
 					    	
 	            	bot.sendAction(channel, atomData.toString());
 	            	
+	            	// now log this action, too
+	            	// hostname is null because getting my own hostname in not implemented yet
+	            	((BitfighterLogBot)bot).onAction(bot.getNick(), bot.getLogin(), null, channel, atomData.toString());
+	            	
 	        		try {
 	        			Thread.sleep(SEND_DELAY);
 	        		} catch (InterruptedException e) {

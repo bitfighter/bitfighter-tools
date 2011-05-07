@@ -137,26 +137,31 @@ public class BitfighterLogBot extends PircBot {
 		message = message.toLowerCase();
 		
 		if (message.equals(getNick().toLowerCase())) {
-			sendMessage(channel, "I'm a real boy.... I think?");
+			sendAndLogMessage(channel, "I'm a real boy.... I think?");
 			return;
 		}
 		
 		if (message.equals("!log")) {
-			sendMessage(channel, config.getJoinMessage());
+			sendAndLogMessage(channel, config.getJoinMessage());
 			return;
 		}
 		
 		if (message.substring(0, 1).equals("!") && botCommands.size() > 0) {
 			if (message.substring(1).equals("commands")) {
-				sendMessage(channel, "Commands: " + commandList);
+				sendAndLogMessage(channel, "Commands: " + commandList);
 				return;
 			}
 
 			String botResponse = botCommands.getProperty(message.substring(1));
 
 			if (botResponse != null)
-				sendMessage(channel, botResponse);
+				sendAndLogMessage(channel, botResponse);
 		}
+	}
+	
+	public void sendAndLogMessage(String target, String message) {
+		sendMessage(target, message);
+		append(BLACK, "<" + getNick() + "> " + message);
 	}
 
 	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {

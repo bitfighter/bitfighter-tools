@@ -43,7 +43,7 @@ public class FeedNotifierThread extends Thread {
 		try {
 			Thread.sleep(INITIAL_SLEEP_DELAY);
 		} catch (InterruptedException e) {
-			// Do nothing
+			e.printStackTrace();
 		}
 
 		fillCache();
@@ -54,6 +54,7 @@ public class FeedNotifierThread extends Thread {
 			try {
 				Thread.sleep(SLEEP_DELAY);
 			} catch (InterruptedException e) {
+				e.printStackTrace();
 				continue;
 			}
 		}
@@ -123,6 +124,7 @@ public class FeedNotifierThread extends Thread {
 	        		try {
 	        			Thread.sleep(SEND_DELAY);
 	        		} catch (InterruptedException e) {
+	        			e.printStackTrace();
 	        			continue;
 	        		}
 				}

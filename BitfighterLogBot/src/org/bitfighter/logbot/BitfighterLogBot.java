@@ -8,9 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
+import java.util.SimpleTimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +37,6 @@ import org.jibble.pircbot.PircBot;
 public class BitfighterLogBot extends PircBot {
 
 	private static final Pattern urlPattern = Pattern.compile("(?i:\\b((http|https|ftp|irc)://[^\\s]+))");
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("H:mm");
 
 	private static final String GREEN = "irc-green";
 	private static final String BLACK = "irc-black";
@@ -46,6 +46,10 @@ public class BitfighterLogBot extends PircBot {
 	private static final String RED = "irc-red";
 	
 	private static final String COMMANDS_FILENAME = "./commands.ini";
+
+	private static Calendar CALENDAR = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static SimpleDateFormat timeFormat = new SimpleDateFormat("H:mm");
 
 	private static KeepAliveThread keepAliveThread = null;
 	private static FeedNotifierThread feedReaderThread = null;
@@ -59,6 +63,9 @@ public class BitfighterLogBot extends PircBot {
 		config = botConfig;
 		setName(config.getNick());
 		setLogin(config.getNick());
+		
+		dateFormat.setCalendar(CALENDAR);
+		timeFormat.setCalendar(CALENDAR);
 		
 		populateResponses();
 	}
@@ -101,9 +108,9 @@ public class BitfighterLogBot extends PircBot {
 
 
 		try {
-			Date now = new Date();
-			String date = DATE_FORMAT.format(now);
-			String time = TIME_FORMAT.format(now);
+			CALENDAR.setTimeInMillis(System.currentTimeMillis());  // re-sync calendar
+			String date = dateFormat.format(CALENDAR.getTime());
+			String time = timeFormat.format(CALENDAR.getTime());
 			File file = new File(config.getOutputDirectory(), date + ".log");
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 			String entry = "<span class=\"irc-date\">[" + time + "]</span> <span class=\"" + color + "\">" + line + "</span><br />";
@@ -113,7 +120,8 @@ public class BitfighterLogBot extends PircBot {
 			writer.close();
 		}
 		catch (IOException e) {
-			System.out.println("Could not write to log: " + e);
+			System.out.println("Could not write to log:");
+			e.printStackTrace();
 		}
 	}
 
@@ -237,8 +245,8 @@ public class BitfighterLogBot extends PircBot {
 				try {
 					Thread.sleep(10000);
 				}
-				catch (Exception anye) {
-					// Do nothing.
+				catch (Exception ee) {
+					ee.printStackTrace();
 				}
 			}
 		}

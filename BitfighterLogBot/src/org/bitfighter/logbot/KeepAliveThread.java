@@ -37,6 +37,7 @@ public class KeepAliveThread extends Thread {
 			try {
 				Thread.sleep(PING_DELAY);
 			} catch (InterruptedException e) {
+				e.printStackTrace();
 				continue;
 			}
 		}

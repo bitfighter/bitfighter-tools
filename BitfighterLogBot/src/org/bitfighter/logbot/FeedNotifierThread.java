@@ -18,11 +18,11 @@ public class FeedNotifierThread extends Thread {
     private String channel;
     private String feedUrl;
 
-	private static final long SLEEP_DELAY = 600000l;  // 10 min
+	private static final long SLEEP_DELAY = 300000l;  // 5 min
 	private static final long INITIAL_SLEEP_DELAY = 15000l;  // 15 sec
 	private static final long SEND_DELAY = 1500l;  // 1.5 sec
 	
-	private static int CACHE_SIZE = 20;
+	private static int CACHE_SIZE = 40;
     
     private static LinkedHashSet<String> feedCache = new LinkedHashSet<String>();
     

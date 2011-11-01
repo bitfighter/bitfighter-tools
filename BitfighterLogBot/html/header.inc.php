@@ -5,12 +5,10 @@
 ?>
 
 <html>
-
 <head>
-
 <title><?php echo("IRC Log for $channel on $server, collected by $nick"); ?></title>
 
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="description" content="IRC Log for <?php echo($channel); ?>" />
 <meta name="keywords" content="IRC Log for <?php echo($channel); ?>" />
 
@@ -21,18 +19,17 @@ body {
     font-size: 12px;
     color: #000000;
 }
-.irc-date  {font-family: Courier New, Courier, mono;}
-.irc-green {color: #009200;}
-.irc-black {color: #000000;}
-.irc-brown {color: #7b0000;}
-.irc-navy  {color: #00007b;}
-.irc-brick {color: #9c009c;}
-.irc-red   {color: #ff0000;}
+/* .irc-date  {font-family: Courier New, Courier, mono;} */
+
+.a {color: #009200;}
+.b {color: #000000;}
+.c {color: #7b0000;}
+.d {color: #00007b;}
+.e {color: #9c009c;}
+.f {color: #ff0000;}
 }
 </style>
-
 </head>
 
 <body>
-
 <h1><?php echo($channel); ?> IRC Log</h1>

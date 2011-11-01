@@ -15,12 +15,12 @@
     <p>
      Timestamps are in GMT/BST.
     </p>
-    <p>
+    <pre>
     
 <?php
         readfile($date . ".log");
 ?>
-    </p>
+    <div align='center'><a href='#top'>top</a><a name='bottom'></div></pre>
 <?php
     }
     else {

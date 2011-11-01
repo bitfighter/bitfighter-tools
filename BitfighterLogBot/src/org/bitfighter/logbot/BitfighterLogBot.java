@@ -38,18 +38,20 @@ public class BitfighterLogBot extends PircBot {
 
 	private static final Pattern urlPattern = Pattern.compile("(?i:\\b((http|https|ftp|irc)://[^\\s]+))");
 
-	private static final String GREEN = "irc-green";
-	private static final String BLACK = "irc-black";
-	private static final String BROWN = "irc-brown";
-	private static final String NAVY = "irc-navy";
-	private static final String BRICK = "irc-brick";
-	private static final String RED = "irc-red";
+	// Color classes
+	// Take a look at the CSS in the header for the real colors
+	private static final String A = "a"; // green
+	private static final String B = "b"; // black
+	private static final String C = "c"; // brown
+	private static final String D = "d"; // navy
+	private static final String E = "e"; // brick
+	private static final String F = "f"; // red
 	
 	private static final String COMMANDS_FILENAME = "./commands.ini";
 
 	private static Calendar CALENDAR = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	private static SimpleDateFormat timeFormat = new SimpleDateFormat("H:mm");
+	private static SimpleDateFormat timeFormat = new SimpleDateFormat("H:mm:ss");
 
 	private static KeepAliveThread keepAliveThread = null;
 	private static FeedNotifierThread feedReaderThread = null;
@@ -113,7 +115,7 @@ public class BitfighterLogBot extends PircBot {
 			String time = timeFormat.format(CALENDAR.getTime());
 			File file = new File(config.getOutputDirectory(), date + ".log");
 			BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
-			String entry = "<span class=\"irc-date\">[" + time + "]</span> <span class=\"" + color + "\">" + line + "</span><br />";
+			String entry = "[" + time + "] <span class=\"" + color + "\">" + line + "</span>";
 			writer.write(entry);
 			writer.newLine();
 			writer.flush();
@@ -126,11 +128,11 @@ public class BitfighterLogBot extends PircBot {
 	}
 
 	public void onAction(String sender, String login, String hostname, String target, String action) {
-		append(BRICK, "* " + sender + " " + action);
+		append(E, "* " + sender + " " + action);
 	}
 
 	public void onJoin(String channel, String sender, String login, String hostname) {
-		append(GREEN, "* " + sender + " (" + login + "@" + hostname + ") has joined " + channel);
+		append(A, "* " + sender + " (" + login + "@" + hostname + ") has joined " + channel);
 		if (sender.equals(getNick())) {
 			sendNotice(channel, config.getJoinMessage());
 		}
@@ -140,7 +142,7 @@ public class BitfighterLogBot extends PircBot {
 	}
 
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
-		append(BLACK, "<" + sender + "> " + message);
+		append(B, "<" + sender + "> " + message);
 
 		message = message.toLowerCase();
 		
@@ -169,58 +171,58 @@ public class BitfighterLogBot extends PircBot {
 	
 	public void sendAndLogMessage(String target, String message) {
 		sendMessage(target, message);
-		append(BLACK, "<" + getNick() + "> " + message);
+		append(B, "<" + getNick() + "> " + message);
 	}
 
 	public void onMode(String channel, String sourceNick, String sourceLogin, String sourceHostname, String mode) {
-		append(GREEN, "* " + sourceNick + " sets mode " + mode);
+		append(A, "* " + sourceNick + " sets mode " + mode);
 	}
 
 	public void onNickChange(String oldNick, String login, String hostname, String newNick) {
-		append(GREEN, "* " + oldNick + " is now known as " + newNick);
+		append(A, "* " + oldNick + " is now known as " + newNick);
 	}
 
 	public void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice) {
-		append(BROWN, "-" + sourceNick + "- " + notice);
+		append(C, "-" + sourceNick + "- " + notice);
 	}
 
 	public void onPart(String channel, String sender, String login, String hostname) {
-		append(GREEN, "* " + sender + " (" + login + "@" + hostname + ") has left " + channel);
+		append(A, "* " + sender + " (" + login + "@" + hostname + ") has left " + channel);
 	}
 
 	public void onPing(String sourceNick, String sourceLogin, String sourceHostname, String target, String pingValue) {
-		append(RED, "[" + sourceNick + " PING]");
+		append(F, "[" + sourceNick + " PING]");
 		super.onPing(sourceNick, sourceLogin, sourceHostname, target, pingValue);
 	}
 
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
-		append(BLACK, "<- *" + sender + "* " + message);
+		append(B, "<- *" + sender + "* " + message);
 	}
 
 	public void onQuit(String sourceNick, String sourceLogin, String sourceHostname, String reason) {
-		append(NAVY, "* " + sourceNick + " (" + sourceLogin + "@" + sourceHostname + ") Quit (" + reason + ")");
+		append(D, "* " + sourceNick + " (" + sourceLogin + "@" + sourceHostname + ") Quit (" + reason + ")");
 	}
 
 	public void onTime(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		append(RED, "[" + sourceNick + " TIME]");
+		append(F, "[" + sourceNick + " TIME]");
 	}
 
 	public void onTopic(String channel, String topic, String setBy, long date, boolean changed) {
 		if (changed) {
-			append(GREEN, "* " + setBy + " changes topic to '" + topic + "'");
+			append(A, "* " + setBy + " changes topic to '" + topic + "'");
 		}
 		else {
-			append(GREEN, "* Topic is '" + topic + "'");
-			append(GREEN, "* Set by " + setBy + " on " + new Date(date));
+			append(A, "* Topic is '" + topic + "'");
+			append(A, "* Set by " + setBy + " on " + new Date(date));
 		}
 	}
 
 	public void onVersion(String sourceNick, String sourceLogin, String sourceHostname, String target) {
-		append(RED, "[" + sourceNick + " VERSION]");
+		append(F, "[" + sourceNick + " VERSION]");
 	}
 
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
-		append(GREEN, "* " + recipientNick + " was kicked from " + channel + " by " + kickerNick);
+		append(A, "* " + recipientNick + " was kicked from " + channel + " by " + kickerNick);
 		if (recipientNick.equalsIgnoreCase(getNick())) {
 			joinChannel(channel);
 		}
@@ -231,7 +233,7 @@ public class BitfighterLogBot extends PircBot {
 	}
 
 	public void onDisconnect() {
-		append(NAVY, "* Disconnected.");
+		append(D, "* Disconnected.");
 
 		stopThreads();
 

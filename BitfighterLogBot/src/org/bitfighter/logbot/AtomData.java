@@ -7,7 +7,7 @@ public class AtomData {
 	private String log;
 	private String commit;
 	
-	AtomData(String id, String commit, String author, String log) {
+	public AtomData(String id, String commit, String author, String log) {
 		this.id = id;
 		this.author = author;
 		this.log = log;

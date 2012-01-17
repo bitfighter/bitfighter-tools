@@ -32,4 +32,5 @@ body {
 </head>
 
 <body>
+<a name='top'></a>
 <h1><?php echo($channel); ?> IRC Log</h1>

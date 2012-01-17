@@ -18,8 +18,8 @@ import java.io.IOException;
 public class Run {
     
     public static void main(String[] args) throws Exception {
-        
-        BotConfig config = new BotConfig();
+    	
+    	BotConfig config = new BotConfig();
         
         /* Set up basic output structure and files */
         File outDir = new File(config.getOutputDirectory());

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+
 public class BotConfig {
 	
 	private String server;
@@ -15,7 +16,7 @@ public class BotConfig {
 	private String feedUrlString;
 	private String outputDirectory;
 
-	BotConfig() throws Exception {
+	public BotConfig() throws Exception {
         Properties properties = new Properties();
         properties.load(new FileInputStream(new File("./config.ini")));
         

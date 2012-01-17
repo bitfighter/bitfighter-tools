@@ -1,4 +1,4 @@
-package org.bitfighter.logbot;
+package org.bitfighter.logbot.threads;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -33,7 +33,6 @@ public class KeepAliveThread extends Thread {
 		while(loop) {
 			bot.sendRawLine("PING LAG" + FORMAT.format(CALENDAR.getTime()));
 			
-//			System.out.println("PING LAG" + FORMAT.format(CALENDAR.getTime()));
 			try {
 				Thread.sleep(PING_DELAY);
 			} catch (InterruptedException e) {

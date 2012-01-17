@@ -2,20 +2,18 @@ package org.bitfighter.logbot;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Properties;
 import java.util.SimpleTimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bitfighter.logbot.threads.CommandsUpdaterThread;
+import org.bitfighter.logbot.threads.FeedNotifierThread;
+import org.bitfighter.logbot.threads.KeepAliveThread;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
 
@@ -46,8 +44,6 @@ public class BitfighterLogBot extends PircBot {
 	private static final String D = "d"; // navy
 	private static final String E = "e"; // brick
 	private static final String F = "f"; // red
-	
-	private static final String COMMANDS_FILENAME = "./commands.ini";
 
 	private static Calendar CALENDAR = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -55,9 +51,7 @@ public class BitfighterLogBot extends PircBot {
 
 	private static KeepAliveThread keepAliveThread = null;
 	private static FeedNotifierThread feedReaderThread = null;
-
-	private static Properties botCommands;
-	private static String commandList;
+	private static CommandsUpdaterThread commandsUpdaterThread = null;
 	
 	private static BotConfig config;
 
@@ -68,35 +62,8 @@ public class BitfighterLogBot extends PircBot {
 		
 		dateFormat.setCalendar(CALENDAR);
 		timeFormat.setCalendar(CALENDAR);
-		
-		populateResponses();
 	}
-
-	private void populateResponses() {
-        try {
-        	botCommands = new Properties();
-        	botCommands.load(new FileInputStream(new File(COMMANDS_FILENAME)));
-		} catch (FileNotFoundException e) {
-			System.out.println(COMMANDS_FILENAME + " not found");
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("Problem reading input file" + COMMANDS_FILENAME);
-			e.printStackTrace();
-		}
-		
-		ArrayList<String> commandArray = new ArrayList<String>(botCommands.stringPropertyNames());
-		commandArray.add("log");
-		
-		Collections.sort(commandArray);
-		
-		StringBuilder stringBuilder = new StringBuilder();
-		for (String command: commandArray) {
-			stringBuilder.append(command);
-			stringBuilder.append(" ");
-		}
-		
-		commandList = stringBuilder.toString();
-	}
+	
 
 	public void append(String color, String line) {
 		line = Colors.removeFormattingAndColors(line);
@@ -156,13 +123,13 @@ public class BitfighterLogBot extends PircBot {
 			return;
 		}
 		
-		if (message.substring(0, 1).equals("!") && botCommands.size() > 0) {
+		if (message.substring(0, 1).equals("!") && CommandsUpdaterThread.getBotCommands().size() > 0) {
 			if (message.substring(1).equals("commands")) {
-				sendAndLogMessage(channel, "Commands: " + commandList);
+				sendAndLogMessage(channel, "Commands: " + CommandsUpdaterThread.getCommandList());
 				return;
 			}
 
-			String botResponse = botCommands.getProperty(message.substring(1));
+			String botResponse = CommandsUpdaterThread.getBotCommands().getProperty(message.substring(1));
 
 			if (botResponse != null)
 				sendAndLogMessage(channel, botResponse);
@@ -256,10 +223,17 @@ public class BitfighterLogBot extends PircBot {
 	
 	private void startThreads() {
 
+		// Start PING keep-alive thread
 		if (keepAliveThread == null)
 			keepAliveThread = new KeepAliveThread(this);
 
 		keepAliveThread.start();
+		
+		// Start thread to periodically update commands from INI
+		if (commandsUpdaterThread == null)
+			commandsUpdaterThread = new CommandsUpdaterThread();
+
+		commandsUpdaterThread.start();
 		
 		if (config.hasFeed()) {
 			if (feedReaderThread == null)

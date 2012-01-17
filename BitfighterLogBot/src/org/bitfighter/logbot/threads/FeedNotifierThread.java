@@ -1,4 +1,4 @@
-package org.bitfighter.logbot;
+package org.bitfighter.logbot.threads;
 
 import java.net.URL;
 import java.util.Collections;
@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.bitfighter.logbot.AtomData;
+import org.bitfighter.logbot.BitfighterLogBot;
+import org.bitfighter.logbot.Util;
 import org.jibble.pircbot.PircBot;
 import org.json.JSONObject;
 import org.json.XML;

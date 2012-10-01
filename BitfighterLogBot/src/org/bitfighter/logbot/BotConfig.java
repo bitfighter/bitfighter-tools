@@ -12,8 +12,9 @@ public class BotConfig {
 	private String nick;
 	private String joinMessage;
 	private boolean debug;
-	private boolean feed;
-	private String feedUrlString;
+	private int listenerPort;
+	
+	private String commitRecordFile;
 	private String outputDirectory;
 
 	public BotConfig() throws Exception {
@@ -21,17 +22,16 @@ public class BotConfig {
         properties.load(new FileInputStream(new File("./config.ini")));
         
         server = properties.getProperty("Server", "irc.freenode.net");
-        channel = properties.getProperty("Channel", "#bitfighter");
+        channel = properties.getProperty("Channel", "#bottest");
         nick = properties.getProperty("Nick", "LogBot2");
         joinMessage = properties.getProperty("JoinMessage", "This channel is logged.");
-        feedUrlString = properties.getProperty("AtomFeed", "");
+        commitRecordFile = properties.getProperty("CommitRecordFile", "./webhooks/commit_record.txt");
         outputDirectory = properties.getProperty("OutputDir", "./output/");
+        listenerPort = Integer.parseInt(properties.getProperty("ListenerPort", "25959"));
 
         String debugOptionString = properties.getProperty("Debug", "false");
-        String feedOptionString = properties.getProperty("IncludeFeed", "false");
 
         debug = debugOptionString.equalsIgnoreCase("true") ? true : false;
-        feed = feedOptionString.equalsIgnoreCase("true") ? true : false;
 	}
 
 	public String getServer() {
@@ -54,16 +54,16 @@ public class BotConfig {
 		return debug;
 	}
 
-	public boolean hasFeed() {
-		return feed;
-	}
-
-	public String getFeedUrlString() {
-		return feedUrlString;
-	}
-
 	public String getOutputDirectory() {
 		return outputDirectory;
+	}
+
+	public String getCommitRecordFile() {
+		return commitRecordFile;
+	}
+
+	public int getListenerPort() {
+		return listenerPort;
 	}
 	
 }

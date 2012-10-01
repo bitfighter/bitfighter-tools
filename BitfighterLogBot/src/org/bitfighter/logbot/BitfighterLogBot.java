@@ -11,9 +11,10 @@ import java.util.SimpleTimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bitfighter.logbot.socket.CaptureCommitMessages;
 import org.bitfighter.logbot.threads.CommandsUpdaterThread;
-import org.bitfighter.logbot.threads.FeedNotifierThread;
 import org.bitfighter.logbot.threads.KeepAliveThread;
+import org.bitfighter.logbot.threads.SocketListenerThread;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
 
@@ -50,8 +51,9 @@ public class BitfighterLogBot extends PircBot {
 	private static SimpleDateFormat timeFormat = new SimpleDateFormat("H:mm:ss");
 
 	private static KeepAliveThread keepAliveThread = null;
-	private static FeedNotifierThread feedReaderThread = null;
+//	private static FeedNotifierThread feedReaderThread = null;
 	private static CommandsUpdaterThread commandsUpdaterThread = null;
+	private static SocketListenerThread socketListenerThread = null;
 	
 	private static BotConfig config;
 
@@ -229,18 +231,17 @@ public class BitfighterLogBot extends PircBot {
 
 		keepAliveThread.start();
 		
+		// Start socket listener thread
+		if (socketListenerThread == null)
+			socketListenerThread = new SocketListenerThread(this, CaptureCommitMessages.class, config.getListenerPort());
+
+		socketListenerThread.start();
+		
 		// Start thread to periodically update commands from INI
 		if (commandsUpdaterThread == null)
 			commandsUpdaterThread = new CommandsUpdaterThread();
 
 		commandsUpdaterThread.start();
-		
-		if (config.hasFeed()) {
-			if (feedReaderThread == null)
-				feedReaderThread = new FeedNotifierThread(this, config.getChannel(), config.getFeedUrlString());
-	
-			feedReaderThread.start();
-		}
 	}
 
 	
@@ -252,10 +253,21 @@ public class BitfighterLogBot extends PircBot {
 			keepAliveThread = null;
 		}
 
-		if (feedReaderThread != null) {
-			feedReaderThread.finish();
-			feedReaderThread.interrupt();
-			feedReaderThread = null;
+		if (socketListenerThread != null) {
+			socketListenerThread.finish();
+			socketListenerThread.interrupt();
+			socketListenerThread = null;
 		}
+
+		if (commandsUpdaterThread != null) {
+			commandsUpdaterThread.finish();
+			commandsUpdaterThread.interrupt();
+			commandsUpdaterThread = null;
+		}
+	}
+	
+	
+	public BotConfig getConfig() {
+		return config;
 	}
 }

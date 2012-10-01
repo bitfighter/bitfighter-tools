@@ -1,6 +1,7 @@
 package org.bitfighter.logbot.threads;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -36,7 +37,8 @@ public class SocketListenerThread extends Thread {
 		this.clazz = clazz;
 		
 		try {
-			this.serverSocket = new ServerSocket(port);
+			// Bind to localhost only
+			this.serverSocket = new ServerSocket(port, 0, InetAddress.getByName("localhost"));
 		} catch (Exception e) {
 			loop = false;
 			e.printStackTrace();

@@ -38,7 +38,7 @@ public class SocketListenerThread extends Thread {
 		
 		try {
 			// Bind to localhost only
-			this.serverSocket = new ServerSocket(port, 0, InetAddress.getByName("localhost"));
+			this.serverSocket = new ServerSocket(port, 0, InetAddress.getByName(null));
 		} catch (Exception e) {
 			loop = false;
 			e.printStackTrace();

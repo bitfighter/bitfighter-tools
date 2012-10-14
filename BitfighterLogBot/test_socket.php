@@ -8,7 +8,8 @@ if (!$fp) {
 }
 
 else {
-	fwrite($fp, "some text\nraptor");
+	fwrite($fp, "some text\nraptor\nBREAK\nanother\ncommit\nBREAK\ntry3\nstill try3\n still try 3");
+	//fwrite($fp, "single commit no break");
 	fclose($fp);
 }
 ?>

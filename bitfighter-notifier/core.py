@@ -155,7 +155,7 @@ class GuiApplicationBase(object):
             if len(players) > 1:
                 verb = 'are'
                 
-            return "{0}\n{1} online".format("\n".join(players), verb)
+            return "{0}\n{1} online".format(", ".join(players), verb)
         else:
             return "Nobody is online"
 
@@ -171,12 +171,19 @@ class MessengerBase(object):
         
             
     def makeMessage(self, comein, goout):
+        verbIn = verbOut = 'has'
+        
+        if len(comein) > 1:
+            verbIn = 'have'
+        if len(goout) > 1:
+            verbOut = 'have'
+                
         if len(comein) and len(goout):
-            body="{0} has joined, {1} has left".format(", ".join(comein), ", ".join(goout))
+            body="{0} {1} joined\n{2} {3} left".format(", ".join(comein),verbIn, ", ".join(goout), verbOut)
         elif len(comein):
-            body="{0} has joined".format(", ".join(comein))
+            body="{0} {1} joined".format(", ".join(comein), verbIn)
         elif len(goout):
-            body="{0} has left".format(", ".join(goout))
+            body="{0} {1} left".format(", ".join(goout), verbOut)
         return body
 
 

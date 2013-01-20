@@ -291,12 +291,12 @@ if isNotify2:
         def notify(self, comein, goout):
             body = self.makeMessage(comein, goout)
             if not self.notification:
-                self.notification = notify2.Notification(self.TITLE, body)
+                self.notification = notify2.Notification(self.title, body)
                 if self.icon and self.icon.get_width() > 0:
                     self.notification.set_icon_from_pixbuf(self.icon)
                 self.notification.timeout = self.timeout
             else:
-                self.notification.update(self.TITLE, body)
+                self.notification.update(self.title, body)
             self.notification.show()
 
 
@@ -341,7 +341,7 @@ elif isDBus:
             bus=dbus.SessionBus(self.mainloop)
             nobj = bus.get_object(item, path)
             notify = dbus.Interface(nobj, interface)
-            notify.Notify(self.appName, 0, iconName, self.TITLE, body, actions, hints, self.timeout)
+            notify.Notify(self.appName, 0, iconName, self.title, body, actions, hints, self.timeout)
 
 
 elif isCmdNotifySend:
@@ -364,7 +364,7 @@ elif isCmdNotifySend:
             if self.iconPath:
                 args.append("--icon")
                 args.append(self.iconPath)
-            args.append(self.TITLE)
+            args.append(self.title)
             args.append(body)
             
             try:

@@ -8,8 +8,6 @@ import logging
 import core
 
 
-title = 'Bitfighter Master'
-
 class MessengerOSXMountainLion(NSObject, core.MessengerBase):
     def __init__(self, timeout):
         core.MessengerBase.__init__(timeout)
@@ -23,7 +21,7 @@ class MessengerOSXMountainLion(NSObject, core.MessengerBase):
         NSUserNotification = objc.lookUpClass('NSUserNotification')
         NSUserNotificationCenter = objc.lookUpClass('NSUserNotificationCenter')
         notification = NSUserNotification.alloc().init()
-        notification.setTitle_(title)
+        notification.setTitle_(self.title)
         notification.setInformativeText_(self.makeMessage(comein, goout))
         NSUserNotificationCenter.defaultUserNotificationCenter().setDelegate_(self)
         NSUserNotificationCenter.defaultUserNotificationCenter().scheduleNotification_(notification)
@@ -59,7 +57,7 @@ class GuiApplicationOSX(NSObject, core.GuiApplicationBase):
             self.statusitem.setImage_(NSImage.alloc().initByReferencingFile_(self.iconPath))
         except:
             logging.exception("Unable to load icon, use label instead")
-            self.statusitem.setTitle_(title)
+            self.statusitem.setTitle_(self.title)
         
         self.statusitem.setHighlightMode_(1)
 

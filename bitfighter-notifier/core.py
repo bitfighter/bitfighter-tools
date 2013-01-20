@@ -44,6 +44,9 @@ except:
 # Set logging level
 logging.basicConfig(level=logging.DEBUG)
 
+
+BITFIGHTER_TITLE = "Bitfighter"
+
 # Adapted from a random pastebin on the web: http://pastebin.com/1VcumfC3
 class PeriodicTimer(object):
     def __init__(self, interval, callback):
@@ -127,6 +130,7 @@ class GuiApplicationBase(object):
     def __init__(self, iconPath):
         self.iconPath = iconPath
         
+        self.title = BITFIGHTER_TITLE
         self.timer = None
             
             
@@ -157,10 +161,9 @@ class GuiApplicationBase(object):
 
 
 class MessengerBase(object):
-    TITLE = "Bitfighter server"
     def __init__(self, timeout):
         self.timeout = timeout
-        
+        self.title = BITFIGHTER_TITLE
             
     # Common methods
     def notify(self, comein, goout):

@@ -64,7 +64,7 @@ class GuiApplicationWindows(core.GuiApplicationBase):
 
 
     def run(self):
-        self.trayapp = systray.App('Bitfighter Master', self.iconPath)
+        self.trayapp = systray.App(self.title, self.iconPath)
         self.trayapp.on_quit = self.onQuit
 
         self.trayapp.start()

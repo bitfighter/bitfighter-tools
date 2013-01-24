@@ -6,7 +6,47 @@ from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
 import logging
 import core
+import platform
 
+
+class Alert(object):
+    def __init__(self, messageText):
+        super(Alert, self).__init__()
+        self.messageText = messageText
+        self.informativeText = ""
+        self.buttons = []
+    
+    
+    def displayAlert(self):
+        alert = NSAlert.alloc().init()
+        alert.setMessageText_(self.messageText)
+        alert.setInformativeText_(self.informativeText)
+        alert.setAlertStyle_(NSInformationalAlertStyle)
+        for button in self.buttons:
+            alert.addButtonWithTitle_(button)
+        NSApp.activateIgnoringOtherApps_(True)
+        self.buttonPressed = alert.runModal()
+
+
+class MessengerOSXLegacy(NSObject, core.MessengerBase):
+    def __init__(self, timeout):
+        core.MessengerBase.__init__(timeout)
+        
+    
+    def notify(self, comein, goout):
+        pool = NSAutoreleasePool.alloc().init()
+        
+        ap = Alert("Bitfighter")
+        ap.informativeText = self.makeMessage(comein, goout)
+        ap.displayAlert()
+        
+        return ap.buttonPressed
+        
+        del pool
+        
+    def setMembers(self, timeout):
+        self.timeout = timeout
+        
 
 class MessengerOSXMountainLion(NSObject, core.MessengerBase):
     def __init__(self, timeout):
@@ -79,7 +119,11 @@ class GuiApplicationOSX(NSObject, core.GuiApplicationBase):
         if self.statusitem is None:
             return
         
+        pool = NSAutoreleasePool.alloc().init()
+        
         self.statusitem.setToolTip_(self.formTooltip(players))
+        
+        del pool
         
         
 class NotifierOSX(core.NotifierBase):
@@ -89,13 +133,25 @@ class NotifierOSX(core.NotifierBase):
         
 
     def run(self):
+        
+        osxVersion, _, _ = platform.mac_ver()
+        majorVersion = int(osxVersion.split('.')[0])
+        minorVersion = int(osxVersion.split('.')[1])
+        
+        logging.debug("major: %s; minor: %s", majorVersion, minorVersion)
+        
         app = NSApplication.sharedApplication()
         guiApp = GuiApplicationOSX.alloc().init()
         app.setDelegate_(guiApp)
 
         guiApp.setMembers(self.executable, self.iconPath)
 
-        messenger = MessengerOSXMountainLion.alloc().init()
+        messenger = None
+        if minorVersion >= 8:
+            messenger = MessengerOSXMountainLion.alloc().init()
+        else:
+            messenger = MessengerOSXLegacy.alloc().init()
+        
         messenger.setMembers(self.notificationTimeout)
         
         receiver = core.PlayersListReceiver(self.url, messenger, guiApp)

@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kitfox.svg.Glyph;
 import com.kitfox.svg.Path;
 import com.kitfox.svg.SVGCache;
 import com.kitfox.svg.SVGDiagram;
@@ -146,21 +147,23 @@ public class SvgToLevelLine {
 		
 		List<Shape> shapeList = new ArrayList<Shape>();
 
-		recursePath(shapeList, diagram.getRoot());
+		recurseShapeSearch(shapeList, diagram.getRoot());
 		
 		return shapeList;
 	}
 	
 	
-	private static void recursePath(List<Shape> fillList, SVGElement element) {
+	private static void recurseShapeSearch(List<Shape> fillList, SVGElement element) {
 		List<?> children = element.getChildren(null);
 		
 		// Get all the path nodes
 		for (Object o : children) {
 			if (o instanceof Path)
 				fillList.add(((Path) o).getShape());
+			else if (o instanceof Glyph)
+				fillList.add(((Glyph) o).getShape());
 			else
-				recursePath(fillList, (SVGElement) o);
+				recurseShapeSearch(fillList, (SVGElement) o);
 		}
 	}
 	

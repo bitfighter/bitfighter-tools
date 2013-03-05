@@ -18,14 +18,27 @@ class Alert(object):
     
     
     def displayAlert(self):
-        alert = NSAlert.alloc().init()
-        alert.setMessageText_(self.messageText)
-        alert.setInformativeText_(self.informativeText)
-        alert.setAlertStyle_(NSInformationalAlertStyle)
-        for button in self.buttons:
-            alert.addButtonWithTitle_(button)
-        NSApp.activateIgnoringOtherApps_(True)
-        self.buttonPressed = alert.runModal()
+#        alert = NSAlert.alloc().init()
+#        alert.setMessageText_(self.messageText)
+#        alert.setInformativeText_(self.informativeText)
+#        alert.setAlertStyle_(NSInformationalAlertStyle)
+#        for button in self.buttons:
+#            alert.addButtonWithTitle_(button)
+#        NSApp.activateIgnoringOtherApps_(True)
+#        self.buttonPressed = alert.runModal()
+        graphicsRect = NSMakeRect(100.0, 350.0, 450.0, 400.0)
+        myWindow = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+            graphicsRect, 
+            NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask,
+            NSBackingStoreBuffered, False
+            )
+        myWindow.setTitle_('Bitfighter')
+#        myView = DemoView.alloc().initWithFrame_(graphicsRect)
+#        myWindow.setContentView_(myView)
+#        myDelegate = AppDelegate.alloc().init()
+#        myWindow.setDelegate_(myDelegate)
+        myWindow.display()
+        myWindow.orderFrontRegardless()
 
 
 class MessengerOSXLegacy(NSObject, core.MessengerBase):
@@ -40,7 +53,7 @@ class MessengerOSXLegacy(NSObject, core.MessengerBase):
         ap.informativeText = self.makeMessage(comein, goout)
         ap.displayAlert()
         
-        return ap.buttonPressed
+#        return ap.buttonPressed
         
         del pool
         

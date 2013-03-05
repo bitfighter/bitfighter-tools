@@ -7,8 +7,8 @@
 
 # hardcoded vars
 # replace e-mail and google code password in between the quotes
-gc_username="someemail@example.com"
-gc_password="randomlygeneratedpasswordRFGokdFu462"
+gc_username="buckyballreaction@gmail.com"
+gc_password="RD9Ex4rT7Hb8"
 gc_upload_script_location="http://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py"
 gc_upload_script=`basename $gc_upload_script_location`
 

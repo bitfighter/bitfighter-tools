@@ -1,8 +1,11 @@
 # This is the pyinstaller SPEC file for building a standalone EXE
 #
+# Get pyinstaller here:
+#    http://sourceforge.net/projects/pyinstaller/
+#
 # To build you need an installation of pyinstaller and run a command like the following:
 # 
-#    python /path/to/pyinstaller.py --upx-dir=/path/to/upxdir main_windows.spec
+#    python -O /path/to/pyinstaller.py --upx-dir=/path/to/upxdir main_windows.spec
 #
 # Also, change the 'root_path' to point to your notifier installation
 
@@ -14,7 +17,7 @@ a = Analysis([os.path.join(root_path, 'main_windows.py')],
              hookspath=None)
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
-          a.scripts,
+          a.scripts + [('O','','OPTION')],
           a.binaries,
           a.zipfiles,
           a.datas,

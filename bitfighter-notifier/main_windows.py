@@ -4,8 +4,8 @@ Created on Jan 14, 2013
 @author: raptor
 
 You need the following packages to run this:
- - pywin32
- - systray
+ - pywin32 - http://sourceforge.net/projects/pywin32/files/pywin32/
+ - systray - http://sourceforge.net/projects/pysystray/files/pysystray/
 '''
 
 from systray import systray

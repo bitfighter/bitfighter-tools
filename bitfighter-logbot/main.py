@@ -83,7 +83,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         message = e.arguments[0].strip()
         sender = NickMask(e.source).nick
 
-        self.append_to_log("b", "* " + sender + " " + message)
+        self.append_to_log("e", "* " + sender + " " + message)
         
     def on_join(self, c, e):
         mask = NickMask(e.source)
@@ -144,6 +144,10 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     def on_ping(self, c, e):
         source_nick = NickMask(e.source).nick
         self.append_to_log("f", "[" + source_nick + " PING]")
+        
+    def on_version(self, c, e):
+        source_nick = NickMask(e.source).nick
+        self.append_to_log("f", "[" + source_nick + " VERSION]")
             
     def on_quit(self, c, e):
         mask = NickMask(e.source)
@@ -168,7 +172,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         source_nick = NickMask(e.source).nick
         kickee = e.arguments[0]
         self.append_to_log("a", "* " + kickee + " was kicked from " + self.channel + " by " + source_nick);
-        c.privmsg(self.channel, "Bwahahaha! *snicker*")
+        self.prvmsg_append_to_log(c, self.channel, "Bwahahaha! *snicker*")
         
         if kickee == self._nickname:
             c.join(self.channel)

@@ -39,6 +39,7 @@ class KungFu():
             pass
 
     def on_ping(self, c, e):
+        target = e.target
         random.seed()
         if self.damaged['status']:
             if random.randint(1,100) * self._get_modifier(self.damaged['time']) > random.randint(50,150):
@@ -48,7 +49,7 @@ class KungFu():
                 }
                 self.damaged['time'] = time.time()
                 n = random.randint(0,len(moves.damagedmsg)-1)
-                self.bot.prvmsg_append_to_log(c, self.bot.channel, moves.damagedmsg[n])
+                self.bot.prvmsg_append_to_log(c, target, moves.damagedmsg[n])
             else:
                 print time.strftime(self.logMessage, time.gmtime()) % {
                     'message': "Still damaged, but no message",
@@ -62,7 +63,7 @@ class KungFu():
                 }
                 self.idle['time'] = time.time()
                 n = random.randint(0,len(moves.idlemsg)-1)
-                self.bot.prvmsg_append_to_log(c, self.bot.channel, moves.idlemsg[n])
+                self.bot.prvmsg_append_to_log(c, target, moves.idlemsg[n])
 
     def _get_modifier(self, t1):
         return abs(int(time.time() - t1) / 60 ) * 0.10

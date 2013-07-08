@@ -5,10 +5,11 @@ Created on Jul 4, 2013
 
 '''
 from irc.client import NickMask, ip_numstr_to_quad
-from modules.combatmoves.kungfu import KungFu
+from modules.fortune.Fortune import Fortune
 from threads.keepalive.KeepAlive import KeepAlive
 from threads.socketlistener.SocketListener import SocketListener
 from threads.updateconfig.UpdateConfig import UpdateConfig
+import ConfigParser
 import cgi
 import irc.bot
 import logging
@@ -16,7 +17,6 @@ import re
 import sys
 import time
 import traceback
-import ConfigParser
 
 # Set up a basic logging handler
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +46,8 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     """
     def our_start(self):
         ''' Load our other irc modules '''
-        self.modules.append(KungFu(self))
+#         self.modules.append(KungFu(self))
+        self.modules.append(Fortune(self))
         
         ''' Run our threads '''
         keepalive = KeepAlive(self.connection)
@@ -96,7 +97,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         else:
             c.notice(nick, self.config.get('irc', 'join_message'))
             
-        self.append_to_log("a", "* " + nick + " (" + user + "@" + host + ") has joined")
+        self.append_to_log("a", "--> " + nick + " (" + user + "@" + host + ") has joined")
         
     def on_nicknameinuse(self, c, e):
         c.nick(c.get_nickname() + "_")
@@ -139,7 +140,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         user = mask.user
         host = mask.host
         
-        self.append_to_log("a", "* " + nick + " (" + user + "@" + host + ") has left " + self.channel)
+        self.append_to_log("a", "<-- " + nick + " (" + user + "@" + host + ") has left " + self.channel)
             
     def on_ping(self, c, e):
         source_nick = NickMask(e.source).nick
@@ -156,7 +157,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         host = mask.host
         
         message = e.arguments[0].strip()
-        self.append_to_log("d", "* " + nick + " (" + user + "@" + host + ") Quit (" + message + ")")
+        self.append_to_log("d", "<-- " + nick + " (" + user + "@" + host + ") Quit (" + message + ")")
             
     def on_time(self, c, e):
         source_nick = NickMask(e.source).nick

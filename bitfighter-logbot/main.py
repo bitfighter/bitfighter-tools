@@ -133,6 +133,11 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         message = e.arguments[0].strip()
         source_nick = NickMask(e.source).nick
         self.append_to_log("c", "-" + source_nick + "- " + message)
+        
+    def on_privnotice(self, c, e):
+        message = e.arguments[0].strip()
+        source_nick = NickMask(e.source).nick
+        self.append_to_log("c", "-" + source_nick + "- " + message)
             
     def on_part(self, c, e):
         mask = NickMask(e.source)

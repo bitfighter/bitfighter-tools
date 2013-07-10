@@ -254,7 +254,9 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         filename = self.config.get('logging', 'output_dir') + currentdate + ".log"
         
         with open(filename, "a") as logfile:
-            logfile.write(entry)
+            # Make sure we re-encode to utf-8, as some messages could be decoded oddly
+            # because of other peoples clients sending data in odd encodings
+            logfile.write(entry.encode('utf-8'))
             logfile.close()
         
         return

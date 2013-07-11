@@ -6,6 +6,11 @@ COMMIT_BREAK = "BREAK";
 
 COMMIT_POST_DELAY = 1.5
 
+
+def chunker(seq, size):
+    return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
+
+
 class CommitMessagesHandler(Handler):
     def __init__(self):
         Handler.__init__(self)
@@ -37,16 +42,16 @@ class CommitMessagesHandler(Handler):
 
         ''' Now post commits to the channel '''
         for post in commits:
-            # Post the commit!
-            bot.connection.action(bot.channel, post)
-            
-            # Log it
-            event = Event("action", bot.connection.get_nickname(), bot.channel, [post])
-            bot.on_action(bot.connection, event)
-            
-            # Don't spam too fast
-            time.sleep(COMMIT_POST_DELAY)
-        
-        
+            ''' Chunk the string if it is too long '''
+            for chunk in chunker(post, 450):  # Should be safe for the 512-byte constraint
+                # Post the commit!
+                bot.connection.action(bot.channel, chunk)
+                                
+                # Log it
+                event = Event("action", bot.connection.get_nickname(), bot.channel, [chunk])
+                bot.on_action(bot.connection, event)
+                
+                # Don't spam too fast
+                time.sleep(COMMIT_POST_DELAY)
         
         

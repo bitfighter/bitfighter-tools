@@ -49,7 +49,7 @@ class MessengerOSXLegacy(NSObject, core.MessengerBase):
     def notify(self, comein, goout):
         pool = NSAutoreleasePool.alloc().init()
         
-        ap = Alert("Bitfighter")
+        ap = Alert(self.title)
         ap.informativeText = self.makeMessage(comein, goout)
         ap.displayAlert()
         
@@ -57,8 +57,9 @@ class MessengerOSXLegacy(NSObject, core.MessengerBase):
         
         del pool
         
-    def setMembers(self, timeout):
+    def setMembers(self, timeout, title):
         self.timeout = timeout
+        self.title = title
         
 
 class MessengerOSXMountainLion(NSObject, core.MessengerBase):
@@ -82,8 +83,9 @@ class MessengerOSXMountainLion(NSObject, core.MessengerBase):
         del pool
         
         
-    def setMembers(self, timeout):
+    def setMembers(self, timeout, title):
         self.timeout = timeout
+        self.title = title
         
 
 startTime = NSDate.date()
@@ -165,7 +167,8 @@ class NotifierOSX(core.NotifierBase):
         else:
             messenger = MessengerOSXLegacy.alloc().init()
         
-        messenger.setMembers(self.notificationTimeout)
+        # Multiple inheritance not working with NSObject??
+        messenger.setMembers(self.notificationTimeout, core.BITFIGHTER_TITLE)
         
         receiver = core.PlayersListReceiver(self.url, messenger, guiApp)
         

@@ -145,8 +145,7 @@ class PlayersListReceiver(object):
         self.url = url
         self.messenger = messenger
         self.guiApp = guiApp
-#        self.refresh()
-#        self.guiApp.refreshToolTip(self.players) # set initial tooltip
+        self.firstRun = True
         
 
     def fetch(self):
@@ -188,6 +187,11 @@ class PlayersListReceiver(object):
             # Send a message and update our tooltip
             self.messenger.notify(comein, goout)
             self.guiApp.refreshToolTip(self.players)
+            
+        # Guarantee a tooltip if no users are online
+        if self.firstRun == True:
+            self.guiApp.refreshToolTip(self.players)
+            self.firstRun = False
             
             
         # Must return true to continue the periodic timer

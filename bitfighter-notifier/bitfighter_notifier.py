@@ -169,7 +169,7 @@ class PlayersListReceiver(object):
         logging.debug("Refreshing JSON")
         
         try:
-            gameInf = json.loads(self.fetch())
+            gameInf = json.loads(self.fetch(), strict=False)
         except:
             logging.exception("Unable to fetch data from {0}".format(self.url))
             return False

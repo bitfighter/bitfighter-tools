@@ -92,11 +92,6 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         user = mask.user
         host = mask.host
         
-        if nick == self._nickname:
-            c.notice(self.channel, self.config.get('irc', 'join_message'))
-        else:
-            c.notice(nick, self.config.get('irc', 'join_message'))
-            
         self.append_to_log("a", "--> " + nick + " (" + user + "@" + host + ") has joined")
         
     def on_nicknameinuse(self, c, e):
@@ -216,10 +211,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     
     # Run one of the various commands that start with a '!'
     def do_command(self, e, c, target, command):
-        if command == "log":
-            c.notice(target, self.config.get('irc', 'join_message'))
-            
-        elif command == "commands":
+        if command == "commands":
             c.privmsg(target, "Commands are: " + ', '.join(self.config.options('commands')))
             
         # Check for the command in our config, send response to the channel

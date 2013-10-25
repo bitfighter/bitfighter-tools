@@ -214,6 +214,15 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         if command == "commands":
             c.privmsg(target, "Commands are: " + ', '.join(self.config.options('commands')))
             
+        elif command == "motd":
+            try:
+                with open(self.config.get('irc', 'motd_file'), "r") as motdfile:
+                    motd = motdfile.read().replace('\n', ' ')
+                    c.privmsg(target, motd)
+            except:
+                traceback.print_exc()
+                c.privmsg(target, "failed to load motd file")
+            
         # Check for the command in our config, send response to the channel
         elif self.config.has_option('commands', command):
             response = self.config.get('commands', command)

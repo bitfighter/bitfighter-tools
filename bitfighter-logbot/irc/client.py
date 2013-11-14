@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 1999-2002  Joel Rosdahl
-# Copyright © 2011-2012 Jason R. Coombs
+# Copyright © 2011-2013 Jason R. Coombs
 
 """
 Internet Relay Chat (IRC) protocol client library.
@@ -47,7 +47,7 @@ Current limitations:
 .. [IRC specifications] http://www.irchelp.org/irchelp/rfc/
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import bisect
 import re
@@ -57,11 +57,13 @@ import string
 import time
 import struct
 import logging
-import itertools
 import threading
 import abc
 import collections
 import functools
+import itertools
+
+import six
 
 try:
     import pkg_resources
@@ -81,9 +83,10 @@ log = logging.getLogger(__name__)
 
 # set the version tuple
 try:
-    VERSION = tuple(int(res) for res in re.findall('\d+',
-        pkg_resources.require('irc')[0].version))
+    VERSION_STRING = pkg_resources.require('irc')[0].version
+    VERSION = tuple(int(res) for res in re.findall('\d+', VERSION_STRING))
 except Exception:
+    VERSION_STRING = 'unknown'
     VERSION = ()
 
 # TODO
@@ -971,14 +974,14 @@ class Throttler(object):
         self.reset()
 
     def reset(self):
-        self.start = time.time()
-        self.calls = itertools.count()
+        self.last_called = 0
 
     def __call__(self, *args, **kwargs):
-        # ensure max_rate >= next(self.calls) / (elapsed + must_wait)
-        elapsed = time.time() - self.start
-        must_wait = next(self.calls) / self.max_rate - elapsed
+        # ensure at least 1/max_rate seconds from last call
+        elapsed = time.time() - self.last_called
+        must_wait = 1 / self.max_rate - elapsed
         time.sleep(max(0, must_wait))
+        self.last_called = time.time()
         return self.func(*args, **kwargs)
 
 
@@ -1120,21 +1123,27 @@ class DCCConnection(Connection):
                 self,
                 Event(command, prefix, target, arguments))
 
-    def privmsg(self, string):
-        """Send data to DCC peer.
-
-        The string will be padded with appropriate LF if it's a DCC
-        CHAT session.
+    def privmsg(self, text):
         """
-        bytes = string.encode('utf-8')
+        Send text to DCC peer.
+
+        The text will be padded with a newline if it's a DCC CHAT session.
+        """
+        if self.dcctype == 'chat':
+            text += '\n'
+        bytes = text.encode('utf-8')
+        return self.send_bytes(bytes)
+
+    def send_bytes(self, bytes):
+        """
+        Send data to DCC peer.
+        """
         try:
             self.socket.send(bytes)
-            if self.dcctype == "chat":
-                self.socket.send("\n")
-            log.debug("TO PEER: %s\n", string)
+            log.debug("TO PEER: %r\n", bytes)
         except socket.error:
-            # Ouch!
             self.disconnect("Connection reset by peer.")
+
 
 class SimpleIRCClient(object):
     """A simple single-server IRC client class.
@@ -1173,7 +1182,7 @@ class SimpleIRCClient(object):
         do_nothing = lambda c, e: None
         method = getattr(self, "on_" + event.type, do_nothing)
         method(connection, event)
-
+        
         # special hack to handle modules
         if hasattr(self, '_modules_dispatcher'):
             self._modules_dispatcher(connection, event)
@@ -1358,21 +1367,28 @@ def ip_quad_to_numstr(quad):
     packed = struct.pack('BBBB', *bytes)
     return str(struct.unpack('>L', packed)[0])
 
-class NickMask(str):
+class NickMask(six.text_type):
     """
     A nickmask (the source of an Event)
 
     >>> nm = NickMask('pinky!username@example.com')
-    >>> nm.nick
-    'pinky'
+    >>> print(nm.nick)
+    pinky
 
-    >>> nm.host
-    'example.com'
+    >>> print(nm.host)
+    example.com
 
-    >>> nm.user
-    'username'
+    >>> print(nm.user)
+    username
 
-    >>> isinstance(nm, basestring)
+    >>> isinstance(nm, six.text_type)
+    True
+
+    >>> nm = 'красный!red@yahoo.ru'
+    >>> if not six.PY3: nm = nm.decode('utf-8')
+    >>> nm = NickMask(nm)
+
+    >>> isinstance(nm.nick, six.text_type)
     True
     """
     @classmethod

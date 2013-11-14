@@ -19,8 +19,8 @@ import time
 import traceback
 
 # Set up a basic logging handler
-logging.basicConfig(level=logging.INFO)
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO,format='%(asctime)s %(message)s')
+#logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(message)s')
 
 
 # For link-searching

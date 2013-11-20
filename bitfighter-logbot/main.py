@@ -89,10 +89,8 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     def on_join(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
-        user = mask.user
-        host = mask.host
         
-        self.append_to_log("a", "--> " + nick + " (" + user + "@" + host + ") has joined")
+        self.append_to_log("a", "--> " + nick + " has joined")
         
     def on_nicknameinuse(self, c, e):
         c.nick(c.get_nickname() + "_")
@@ -137,10 +135,8 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     def on_part(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
-        user = mask.user
-        host = mask.host
         
-        self.append_to_log("a", "<-- " + nick + " (" + user + "@" + host + ") has left " + self.channel)
+        self.append_to_log("a", "<-- " + nick + " has left " + self.channel)
             
     def on_ping(self, c, e):
         source_nick = NickMask(e.source).nick
@@ -153,11 +149,9 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     def on_quit(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
-        user = mask.user
-        host = mask.host
         
         message = e.arguments[0].strip()
-        self.append_to_log("d", "<-- " + nick + " (" + user + "@" + host + ") Quit (" + message + ")")
+        self.append_to_log("d", "<-- " + nick + " Quit (" + message + ")")
             
     def on_time(self, c, e):
         source_nick = NickMask(e.source).nick

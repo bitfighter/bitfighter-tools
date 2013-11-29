@@ -3,7 +3,15 @@
 
 One script to rule them all...  
    
+-------
+USAGE
+-------
 
+If bitfighter is installed on a custom path, include it as an argument.
+e.g.
+bitfighter_notifier.py C:\my\custom\path\bitfighter.exe
+   
+   
 Platform-specific notes:
 
 -------
@@ -325,9 +333,20 @@ if sys.platform == 'win32':
             
         def launchExecutable(self, *args):
             try:
-                subprocess.Popen(self.executable, shell=True)
+                subprocess.Popen(self.executable, shell=False)
+                logging.debug("Running Bitfighter with path " + self.executable)
             except:
-                logging.error("Unable to run {0}".format(self.cmd))
+                logging.warning("Unable to run {0}, trying default path".format(self.executable))
+                logging.debug("Attempting default installation path")
+                
+                if os.path.exists(os.path.join(os.path.expandvars("%ProgramFiles%"), "bitfighter", "bitfighter.exe")):
+                    logging.debug("Attempting " + os.path.join(os.path.expandvars("%ProgramFiles%"), "bitfighter", "bitfighter.exe"))
+                    subprocess.Popen(os.path.join(os.path.expandvars("%ProgramFiles%"), "bitfighter", "bitfighter.exe"), shell=True)
+                elif os.path.exists(os.path.join(os.path.expandvars("%ProgramFiles(x86)%"), "bitfighter", "bitfighter.exe")):
+                    logging.debug("Attempting " + os.path.join(os.path.expandvars("%ProgramFiles(x86)%"), "bitfighter", "bitfighter.exe"))
+                    subprocess.Popen(os.path.join(os.path.expandvars("%ProgramFiles(x86)%"), "bitfighter", "bitfighter.exe"), shell=True)
+                else:
+                    logging.error("Unable to find {0} in default paths".format(self.executable))
     
     
         def rightClickEvent(self, icon, button, time):
@@ -349,9 +368,9 @@ if sys.platform == 'win32':
         def run(self):
             self.trayapp = systray.App(self.title, self.iconPath)
             self.trayapp.on_quit = self.onQuit
+            self.trayapp.on_double_click = self.launchExecutable
     
             self.trayapp.start()
-            
     
     
     class NotifierWindows(NotifierBase):
@@ -1054,6 +1073,10 @@ def main():
     else:
         logging.error("This platform is not currently handled.  Join #bitfighter on freenode and complain to the developers")
 
+    if len(sys.argv) == 2:
+        notifier.executable = sys.argv[1]
+        logging.debug("Custom path supplied: " + sys.argv[1])
+    
     if notifier != None:
         notifier.run()
     

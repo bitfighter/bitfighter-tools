@@ -27,3 +27,6 @@ class KeepAlive(threading.Thread):
             self.connection.send_raw("PING LAG" + currentdate)
             
         return True
+
+    def on_ping(self, c, e):
+        self.do_ping()

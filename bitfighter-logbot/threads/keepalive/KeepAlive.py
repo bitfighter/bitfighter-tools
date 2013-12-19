@@ -3,30 +3,26 @@ Created on Jul 5, 2013
 
 @author: dbuck
 '''
-from threads import PeriodicTimer
 import threading
-import time
+import logging
 
 
 PING_DELAY = 60
 
 class KeepAlive(threading.Thread):
-    def __init__(self, connection):
+    def __init__(self, bot):
         threading.Thread.__init__(self)
         
-        self.connection = connection
-        return
-    
-    def run(self):
-        timer = PeriodicTimer(PING_DELAY, self.do_ping)
-        timer.start()
-    
-    def do_ping(self):
-        if self.connection is not None:
-            currentdate = time.strftime("%H%M%S", time.localtime(time.time()))
-            self.connection.send_raw("PING LAG" + currentdate)
-            
-        return True
+        self.bot = bot
+        self.event = threading.Event()
 
-    def on_ping(self, c, e):
-        self.do_ping()
+    def run(self):
+        self.event.wait(PING_DELAY)
+        
+        while not self.event.is_set():
+            logging.debug("Sending PING")
+            self.bot.do_ping()
+            self.event.wait(PING_DELAY)
+
+    def stop(self):
+        self.event.set()

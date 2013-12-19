@@ -4,7 +4,7 @@ Created on Jul 5, 2013
 @author: dbuck
 '''
 import threading
-from threads import PeriodicTimer
+import logging
 
 
 SCAN_DELAY = 300
@@ -14,14 +14,20 @@ class UpdateConfig(threading.Thread):
         threading.Thread.__init__(self)
         
         self.config = config
-        return
+        self.event = threading.Event()
     
     def run(self):
-        timer = PeriodicTimer(SCAN_DELAY, self.reload_config)
-        timer.start()
+        self.event.wait(SCAN_DELAY)
         
+        while not self.event.is_set():
+            logging.debug("Reloading config")
+            self.reload_config()
+            self.event.wait(SCAN_DELAY)
+        
+    def stop(self):
+        self.event.set()
+
+
     def reload_config(self):
         if self.config is not None:
             self.config.read('main.cfg')
-            
-        return True

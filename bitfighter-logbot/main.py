@@ -50,7 +50,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         self.modules.append(Fortune(self))
         
         ''' Run our threads '''
-        keepalive = KeepAlive(self.connection)
+        keepalive = KeepAlive(self)
         keepalive.start()
         
         updateconfig = UpdateConfig(self.config)
@@ -73,6 +73,17 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         for module in self.modules:
             if hasattr(module, method):
                 getattr(module, method)(c, e)
+                
+
+    """
+        General method to send a ping to the server
+    """    
+    def do_ping(self):
+        if self.connection is not None:
+            currentdate = time.strftime("%H%M%S", time.localtime(time.time()))
+            self.connection.send_raw("PING LAG" + currentdate)
+            
+        return True
     
                 
     """
@@ -139,8 +150,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         self.append_to_log("a", "<-- " + nick + " has left " + self.channel)
             
     def on_ping(self, c, e):
-        source_nick = NickMask(e.source).nick
-        self.append_to_log("f", "[" + source_nick + " PING]")
+        self.do_ping()
         
     def on_version(self, c, e):
         source_nick = NickMask(e.source).nick

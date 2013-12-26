@@ -61,21 +61,12 @@ public class SvgToLevelLine {
 		List<List<Point>> allShapePointLists = new ArrayList<List<Point>>();
 		
 		for(Shape shape: shapeList) {
-			allShapePointLists.add(loadPointsFromShape(shape, flatness));
+			allShapePointLists.addAll(loadPointsFromShape(shape, flatness));
 		}
 
 		// De-dupe
 		List<List<Point>> deDupedShapePointLists = deDupShapeList(allShapePointLists);
 
-		// Stuff for glyphs
-		if(true) {
-			// Finish shapes (make closed polygon)
-//			closeShapes(deDupedShapePointLists);
-
-			// Glyphs only need to be offset
-//			offSetShapeList(deDupedShapePointLists);
-		}
-		
 		for(List<Point> pointList: deDupedShapePointLists) {
 			List<List<Point>> splitList = splitPointList(pointList, maxPoints);
 			
@@ -85,39 +76,6 @@ public class SvgToLevelLine {
 		}
 		
 		return stringBuilder.toString();
-	}
-
-
-	private static void closeShapes(List<List<Point>> shapeLists) {
-	
-		for(List<Point> shape: shapeLists) {
-			if(shape.size() == 0)
-				continue;
-			
-			double x = shape.get(0).x;
-			double y = shape.get(0).y;
-
-			shape.add(new Point(x, y));
-		}
-
-	}
-
-
-	private static void offSetShapeList(List<List<Point>> shapeLists) {
-		int sizeFactor = 2000;
-		int rowLength = 10;
-		int xPos = 0;
-		int yPos = 0;
-				
-		for(List<Point> shape: shapeLists) {
-			
-			for(Point p: shape) {
-				p.x += xPos	* sizeFactor;
-				p.y += yPos	* sizeFactor;
-			}
-			
-			xPos++;
-		}
 	}
 
 
@@ -211,24 +169,43 @@ public class SvgToLevelLine {
 	
 	
 	/**
-	 * Transforms a shape into a set of points
+	 * Transforms a shape into a list a of lists of points, where each
+	 * list represents a single contiguous shape (i.e. each list is broken
+	 * when it encounters a MOVE_TO segment
 	 * 
 	 * @param shape
-	 * @return
+	 * @return a List of Lists of Points
 	 */
-	private static List<Point> loadPointsFromShape(Shape shape, double flatness) {
+	private static List<List<Point>> loadPointsFromShape(Shape shape, double flatness) {
+		List<List<Point>> pointListList = new ArrayList<List<Point>>();
 		List<Point> pointList = new ArrayList<Point>();
 
 		PathIterator pathIterator = shape.getPathIterator(null, flatness);
 		double[] coords = new double[2];
+		int type;
 
 		while (!pathIterator.isDone()) {
-			pathIterator.currentSegment(coords);
+			type = pathIterator.currentSegment(coords);
+			
+			// Start a new segment
+			if (type == PathIterator.SEG_MOVETO) {
+				pointListList.add(pointList);
+				pointList = new ArrayList<Point>();
+			}
+			
+			// Add current point to list
 			pointList.add(new Point(coords[0], coords[1]));
+			
+			// If we're a closed segment, close it by adding first point again
+			if (type == PathIterator.SEG_CLOSE) {
+				pointList.add(pointList.get(0));
+			}
+			
 			pathIterator.next();
 		}
+		pointListList.add(pointList);
 
-		return pointList;
+		return pointListList;
 	}
 
 	

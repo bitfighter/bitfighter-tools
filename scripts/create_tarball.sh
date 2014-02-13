@@ -1,19 +1,12 @@
 #!/bin/bash
 #
-# Ugly script to create source tarball for bitfighter and upload to google code.
+# Ugly script to create source tarball for bitfighter
 #
 # note that tags are handled differently in mercurial: they are essentially
 #   an alias to a changeset.
 
 # hardcoded vars
-# replace e-mail and google code password in between the quotes
-gc_username="buckyballreaction@gmail.com"
-gc_password="RD9Ex4rT7Hb8"
-gc_upload_script_location="http://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py"
-gc_upload_script=`basename $gc_upload_script_location`
-
-server_side_clone="https://bitfighter.googlecode.com/hg/"
-
+output_dir=/tmp
 
 # Check for mercurial
 hg="`which hg`"
@@ -27,19 +20,22 @@ fi
 # Check for parameters
 if [ -z "$2" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ] 
 then
-  echo "Usage: " `basename $0` "TAG_NAME_OR_CHANGESET BITFIGHTER_VERSION"
+  echo "Usage: " `basename $0` "BITFIGHTER_VERSION CLONE_PATH_OR_URL"
   echo
-  echo "Example: `basename $0` bitfighter-014a 014a"
+  echo "Example: `basename $0` 019a /home/blah/hg/bitfighter"
   echo
   exit 0
 fi
 
 # Argument variables
-tag="$1"
-version="$2"
+version="$1"
+server_side_clone="$2"
+tag="bitfighter-$version"  # Always follows this pattern
 tarball_root="bitfighter-$version"
 
 echo " => You chose version $version"
+
+echo " => output dir: $output_dir"
 
 # Create temp dir
 tmp_dir="`mktemp -d`"
@@ -71,32 +67,15 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Uncomment to not upload to google code
-# exit
-
-# Download the upload script on the fly
-echo " => Downloading Google Code upload script, $gc_upload_script"
-wget -q "$gc_upload_script_location"
-chmod +x "$gc_upload_script"
-
-if [ ! -f $gc_upload_script ]; then
-  echo "The Google Code upload script was not downloaded correctly.  Check the URL. Exiting"
-  exit 1
-fi
-
-# Upload to google code
-echo " => Uploading to Google Code (may take a minute)"
-./$gc_upload_script --summary="bitfighter $version source archive" --project=bitfighter --user="$gc_username" --password="$gc_password" $tarball_root.tar.gz
-
-if [ $? -ne 0 ]; then
-  echo "There was a failure in uploading.  Exiting"
-  exit 1
-fi
+# Move to output_dir
+mv $tarball_root.tar.gz "$output_dir/"
 
 # Clean up my mess
 echo " => Cleaning up"
 rm -rf "$tmp_dir"
 
 echo "Done!"
+echo
+echo "Archive found at: $output_dir/$tarball_root.tar.gz"
 
 exit 0

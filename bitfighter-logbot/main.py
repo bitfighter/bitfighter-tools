@@ -10,10 +10,8 @@ from threads.keepalive.KeepAlive import KeepAlive
 from threads.socketlistener.SocketListener import SocketListener
 from threads.updateconfig.UpdateConfig import UpdateConfig
 import ConfigParser
-import cgi
 import irc.bot
 import logging
-import re
 import sys
 import time
 import traceback
@@ -22,9 +20,6 @@ import traceback
 logging.basicConfig(level=logging.INFO,format='%(asctime)s %(message)s')
 #logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(message)s')
 
-
-# For link-searching
-URL_REGEX = re.compile(r'''((http|https|ftp|irc)://[^\s]+)''')
 
     
 '''
@@ -95,13 +90,13 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         message = e.arguments[0].strip()
         sender = NickMask(e.source).nick
 
-        self.append_to_log("e", "* " + sender + " " + message)
+        self.append_to_log("* " + sender + " " + message)
         
     def on_join(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
         
-        self.append_to_log("a", "--> " + nick + " has joined")
+        self.append_to_log("--> " + nick + " has joined")
         
     def on_nicknameinuse(self, c, e):
         c.nick(c.get_nickname() + "_")
@@ -120,63 +115,63 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         message = e.arguments[0].strip()
         sender = e.source.nick
         
-        self.append_to_log("b", "<" + sender + "> " + message)
+        self.append_to_log("<" + sender + "> " + message)
         
         if message.startswith("!"):
             self.do_command(e, c, self.channel, message.lstrip("!"))
             
     def on_mode(self, c, e):
         source_nick = NickMask(e.source).nick
-        self.append_to_log("a", "* " + source_nick + " sets mode " + e.arguments[0])
+        self.append_to_log("* " + source_nick + " sets mode " + e.arguments[0])
             
     def on_nick(self, c, e):
         source_nick = NickMask(e.source).nick
-        self.append_to_log("a", "* " + source_nick + " is now known as " + e.target)
+        self.append_to_log("* " + source_nick + " is now known as " + e.target)
         
     def on_notice(self, c, e):
         message = e.arguments[0].strip()
         source_nick = NickMask(e.source).nick
-        self.append_to_log("c", "-" + source_nick + "- " + message)
+        self.append_to_log("-" + source_nick + "- " + message)
         
     def on_privnotice(self, c, e):
         message = e.arguments[0].strip()
         source_nick = NickMask(e.source).nick
-        self.append_to_log("c", "-" + source_nick + "- " + message)
+        self.append_to_log("-" + source_nick + "- " + message)
             
     def on_part(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
         
-        self.append_to_log("a", "<-- " + nick + " has left " + self.channel)
+        self.append_to_log("<-- " + nick + " has left " + self.channel)
             
     def on_ping(self, c, e):
         self.do_ping()
         
     def on_version(self, c, e):
         source_nick = NickMask(e.source).nick
-        self.append_to_log("f", "[" + source_nick + " VERSION]")
+        self.append_to_log("[" + source_nick + " VERSION]")
             
     def on_quit(self, c, e):
         mask = NickMask(e.source)
         nick = mask.nick
         
         message = e.arguments[0].strip()
-        self.append_to_log("d", "<-- " + nick + " Quit (" + message + ")")
+        self.append_to_log("<-- " + nick + " Quit (" + message + ")")
             
     def on_time(self, c, e):
         source_nick = NickMask(e.source).nick
-        self.append_to_log("f", "[" + source_nick + " TIME]")
+        self.append_to_log("[" + source_nick + " TIME]")
             
     def on_topic(self, c, e):
         topic = e.arguments[0].strip()
         source_nick = e.source.nick
         
-        self.append_to_log("a", "* " + source_nick + " changes topic to '" + topic + "'");
+        self.append_to_log("* " + source_nick + " changes topic to '" + topic + "'");
             
     def on_kick(self, c, e):
         source_nick = NickMask(e.source).nick
         kickee = e.arguments[0]
-        self.append_to_log("a", "* " + kickee + " was kicked from " + self.channel + " by " + source_nick);
+        self.append_to_log("* " + kickee + " was kicked from " + self.channel + " by " + source_nick);
         self.prvmsg_append_to_log(c, self.channel, "Bwahahaha! *snicker*")
         
         if kickee == self._nickname:
@@ -211,7 +206,7 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
     # This method makes the bot respond and log its response
     def prvmsg_append_to_log(self, c, target, message):
         c.privmsg(target, message)
-        self.append_to_log("b", "<" + self._nickname + "> " + message)
+        self.append_to_log("<" + self._nickname + "> " + message)
     
     # Run one of the various commands that start with a '!'
     def do_command(self, e, c, target, command):
@@ -243,17 +238,14 @@ class BitfighterLogBot(irc.bot.SingleServerIRCBot):
         return
 
     # Add a line to the log
-    def append_to_log(self, color, line):
-        # Escape HTML sequences and make links HTML friendly
-        formattedline = URL_REGEX.sub(r'<a href="\1">\1</a>', cgi.escape(line))
-        
+    def append_to_log(self, line):
         now = time.localtime(time.time())
         currentdate = time.strftime("%Y-%m-%d", now)
         currenttime = time.strftime("%H:%M:%S", now)
         
         # This make an entry like this:
         #  [13:56:22] <span class="b">&lt;raptor&gt; hi</span>
-        entry = "[" + currenttime + "] <span class=\"" + color + "\">" + formattedline + "</span>\n"
+        entry = "[" + currenttime + "] " + line + "\n"
         
         # Now write to the log file
         filename = self.config.get('logging', 'output_dir') + currentdate + ".log"

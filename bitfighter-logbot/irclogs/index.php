@@ -35,8 +35,15 @@ $index = $_GET['index'];
 // Individual log pages
 if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 
+	$prev_date = date('Y-m-d', strtotime($date .' -1 day'));
+	$next_date = date('Y-m-d', strtotime($date .' +1 day'));
+
 	print("
-<p><a href=\"./index.php?index=true\">Index</a></p>
+<p>
+	<a href=\"./index.php?index=true\">Index</a>
+	<a href=\"./index.php?date=$prev_date\">←Prev date</a>
+	<a href=\"./index.php?date=$next_date\">Next date→</a>
+</p>
 <h2>IRC Log for $date</h2>
 <p>Timestamps are in GMT/BST.</p>
 <pre>");

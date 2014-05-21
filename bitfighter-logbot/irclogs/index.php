@@ -30,12 +30,13 @@ function startsWith($haystack, $needle) {
 include("inc/header.inc.php");
 
 $date = $_GET['date'];
+$index = $_GET['index'];
 
 // Individual log pages
 if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 
 	print("
-<p><a href=\"./\">Index</a></p>
+<p><a href=\"./index.php?index=true\">Index</a></p>
 <h2>IRC Log for $date</h2>
 <p>Timestamps are in GMT/BST.</p>
 <pre>");
@@ -112,8 +113,8 @@ if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 	print("<div align='center'><a href='#top'>top</a></div></pre>");
 }
 
-// This is the main page
-else {
+// This is the index page
+else if (isset($index) && $index == "true") {
 	$dir = opendir(".");
 	while (false !== ($file = readdir($dir))) {
 		if (strpos($file, ".log") == 10) {
@@ -135,6 +136,23 @@ else {
 	}
 
 	print("</ul>");
+}
+
+// Else we default to the latest log
+else {
+	// Grab latest log file
+	$date = date("Y-m-d");
+
+	// Strip any parameters so we don't redirect infinitely
+	$path = $_SERVER['REQUEST_URI'];
+
+	$pos = strpos($path,'?');
+	if($pos !== false) {
+		$path = substr($path, 0, $pos);
+	}
+
+	// Redirect!
+	header('Location: http://'.$_SERVER['SERVER_NAME'].$path."?date=$date");
 }
 
 include("inc/footer.inc.php");

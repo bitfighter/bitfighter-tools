@@ -47,9 +47,15 @@ if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 			print("<tr class=\"$results[class]\"><td class=\"time\" id=\"$aref\"><a href=\"#$aref\">$time</a></td><td class=\"nick\">$results[col2]</td><td class=\"message\">$results[col3]</td></tr>\n");
 		}
 		
-		print("</table>");
+		print("</table></pre>");
 
-		print("<div align='center'><a href='#top'>top</a></div></pre>");
+		print("
+<p>
+	<a href=\"./index.php?index=true\">Index</a>
+	<a href=\"./search.php\">Search</a>
+	<a href=\"./index.php?date=$prev_date\">←Prev date</a>
+	<a href=\"./index.php?date=$next_date\">Next date→</a>
+</p>");
 	}
 }
 

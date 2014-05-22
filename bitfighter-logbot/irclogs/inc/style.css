@@ -17,19 +17,27 @@ body {
 	border-collapse: collapse;
 	width: 100%;
 	border: 1px solid #efefef;
+	white-space: nowrap;
 }
 
 .chat tr { border-top: 1px solid #efefef; }
-.chat td, th { padding: 0.1em 0.4em; }
-
-.join *, .left * {
-	font-size: 80%;
-	color: gray;
+.chat td, th {
+	padding: 0.1em 0.4em;
+	white-space: normal;
 }
 
 .nick {
 	text-align: right;
 	border-right: 1px solid #C0C0C0;
+}
+
+.message {
+	width: 100%;
+}
+
+.join *, .left * {
+	font-size: 80%;
+	color: gray;
 }
 
 .action {

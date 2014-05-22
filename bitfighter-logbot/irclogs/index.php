@@ -2,35 +2,12 @@
 //
 //
 //
-
-$nick_color_cache = array();
-
-function getNickColor($nick) {
-	global $nick_color_cache;
-	
-	// Lookup in cache first
-	if(isset($nick_color_cache[$nick]))
-		return $nick_color_cache[$nick];
-	
-	// Not found, calculate and add to cache
-	$color = substr(bin2hex($nick), 0, 3);
-	$nick_color_cache[$nick] = $color;
-	
-	return $color;
-}
-
-
-function startsWith($haystack, $needle) {
-     $length = strlen($needle);
-     return (substr($haystack, 0, $length) === $needle);
-}
-
-
-
 include("inc/header.inc.php");
 
-$date = $_GET['date'];
-$index = $_GET['index'];
+if(isset($_GET['date']))
+	$date = $_GET['date'];
+if(isset($_GET['index']))
+	$index = $_GET['index'];
 
 // Individual log pages
 if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
@@ -41,6 +18,7 @@ if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 	print("
 <p>
 	<a href=\"./index.php?index=true\">Index</a>
+	<a href=\"./search.php\">Search</a>
 	<a href=\"./index.php?date=$prev_date\">←Prev date</a>
 	<a href=\"./index.php?date=$next_date\">Next date→</a>
 </p>
@@ -49,75 +27,30 @@ if (isset($date) && preg_match("/^\d\d\d\d-\d\d-\d\d$/", $date)) {
 <pre>");
 
 	// Load file into an array
-	$filearray = file($date.".log", FILE_IGNORE_NEW_LINES);
-
-	print("<table class=\"chat\">");
-	$url_regex = "/((http|https|ftp|irc):\/\/[^\s]+)/";
-	$line_number = 0;
-	
-	foreach($filearray as $line) {
-		
-		$line_number++;
-		// Extract the 12:34:45 from between the brackets []
-		$time = substr($line, 1, 8);
-		
-		// Message starts at index 11
-		$message = substr($line, 11);
-		
-		$col2 = "";
-		$col3 = "";
-		$class = "";
-		
-		// Analyze our lines
-		
-		// Person left the channel
-		if(startsWith($message,"<-- ")) {
-			$col3 = substr($message, 4);
-			$class = "left";
-		}
-		
-		// Message (have to do above check first)
-		elseif(startsWith($message,"<")) {
-			$index = strpos($message, "> ");
-			$nick = substr($message, 1, $index-1);
-			$text = htmlspecialchars(substr($message, $index+2));
-			
-			$col3 = preg_replace($url_regex, "<a href=\"$1\">$1</a>", $text);
-			
-			$color = getNickColor($nick);
-			$col2 = "<span style=\"color:#$color\">$nick</span>";
-			$class = "talk";
-		}
-		
-		// Person joined the channel
-		elseif(startsWith($message,"--> ")) {
-			$col3 = substr($message, 4);
-			$class = "join";
-		}
-		// Some channel action
-		elseif(startsWith($message,"* ")) {
-			$col3 = substr($message, 2);
-			$class = "action";
-		}
-		// A notice of some sort
-		elseif(startsWith($message,"-")) {
-			$col3 = $message;
-			$class = "notice";
-		}
-		
-		// Anything else, just print for now
-		else {
-			$col3 = $message;
-			$class = "other";
-		}
-		
-		$aref = "l$line_number";
-		print("<tr class=\"$class\"><td class=\"time\" id=\"$aref\"><a href=\"#$aref\">$time</a></td><td class=\"nick\">$col2</td><td class=\"message\">$col3</td></tr>\n");
+	$filearray = @file($date.".log", FILE_IGNORE_NEW_LINES);
+	if($filearray === false) {
+		print("<b>No logs available for $date</b>");
 	}
-	
-	print("</table>");
+	else {
+		print("<table class=\"chat\">");
+		$linenumber = 0;
+			
+		foreach($filearray as $line) {
+			
+			$linenumber++;
+			// Extract the 12:34:45 from between the brackets []
+			$time = substr($line, 1, 8);
+			
+			$results = analyzeLine($line);
+			
+			$aref = "l$linenumber";
+			print("<tr class=\"$results[class]\"><td class=\"time\" id=\"$aref\"><a href=\"#$aref\">$time</a></td><td class=\"nick\">$results[col2]</td><td class=\"message\">$results[col3]</td></tr>\n");
+		}
+		
+		print("</table>");
 
-	print("<div align='center'><a href='#top'>top</a></div></pre>");
+		print("<div align='center'><a href='#top'>top</a></div></pre>");
+	}
 }
 
 // This is the index page

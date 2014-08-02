@@ -43,8 +43,7 @@ if ($digest != $hmac) {
 $commits = array();
 
 foreach($json["revisions"] as $revisions) {
-	$author_pieces = explode("@", $revisions["author"]);
-	$author = $author_pieces[0];  // Take the first part of the e-mail
+	$author = name_from_email($revisions["author"]);
 	$commit = substr($revisions["revision"], 0, 10);
 	$message = $revisions["message"];
 
@@ -66,6 +65,18 @@ foreach($commits as $log) {
 }
 
 fclose($fp);
+
+
+
+function name_from_email($email) {
+	$author = explode(' ', $email);
+	$author = trim($author[0]);
+	$author = ltrim(rtrim($author, '>'), '<');
+	$author = explode('@', $author);
+	$author = trim($author[0]);
+	
+	return $author;
+}
 
 
 ?>

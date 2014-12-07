@@ -1,0 +1,8 @@
+DirectoryIndex index.php
+
+AuthUserFile /var/www/.htpasswd-motd
+AuthGroupFile /dev/null
+AuthName "Enter Password"
+AuthType Basic
+
+require valid-user

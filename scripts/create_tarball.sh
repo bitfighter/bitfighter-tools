@@ -8,6 +8,7 @@
 # hardcoded vars
 output_dir=/tmp
 
+
 # Check for mercurial
 hg="`which hg`"
 
@@ -58,9 +59,52 @@ cd $tarball_root
 hg up -r "$tag" 1>/dev/null
 cd ..
 
+# Our excludes from the main bitfighter source
+exclude_file="$output_dir"/bf_excludes.txt
+
+excludes=$(cat <<EOF > $exclude_file
+$tarball_root/.hg*
+$tarball_root/lib
+$tarball_root/zap/resource.h
+$tarball_root/zap/ZAP.rc
+$tarball_root/resource/fonts/*
+$tarball_root/resource/bitfighter.xpm
+$tarball_root/resource/redship64.png
+$tarball_root/bitfighter_test
+$tarball_root/build/*
+$tarball_root/gtest
+$tarball_root/libmodplug
+$tarball_root/libogg
+$tarball_root/libpng
+$tarball_root/libsdl
+$tarball_root/libspeex
+$tarball_root/libvorbis
+$tarball_root/misc
+$tarball_root/mysql++
+$tarball_root/openal
+$tarball_root/other
+$tarball_root/zlib
+$tarball_root/updater/gpl.txt
+$tarball_root/updater/License.txt
+$tarball_root/updater/bin
+$tarball_root/updater/lib
+$tarball_root/updater/resource
+$tarball_root/updater/src
+$tarball_root/resource/sfx/gofast.sfs
+$tarball_root/master/master?support*
+$tarball_root/master/schema
+EOF
+)
+
 # Compress
+## Check for old file, and remove it
+if [ -f "$output_dir"/"$tarball_root.tar.gz" ]; then
+  echo " => Removing old archive"
+  rm -f "$output_dir"/"$tarball_root.tar.gz"
+fi
+
 echo " => Compressing $tarball_root.tar.gz"
-tar cfz "$tarball_root.tar.gz" --exclude=.hg "$tarball_root"
+tar cfz "$tarball_root.tar.gz" --exclude-from="$exclude_file" "$tarball_root"
 
 if [ $? -ne 0 ]; then
   echo "Tar did not compress properly.  Exiting"
@@ -73,6 +117,7 @@ mv $tarball_root.tar.gz "$output_dir/"
 # Clean up my mess
 echo " => Cleaning up"
 rm -rf "$tmp_dir"
+rm -f $exclude_file
 
 echo "Done!"
 echo

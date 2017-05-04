@@ -2,19 +2,17 @@
 #
 # Ugly script to create source tarball for bitfighter
 #
-# note that tags are handled differently in mercurial: they are essentially
-#   an alias to a changeset.
 
 # hardcoded vars
 output_dir=/tmp
 
 
-# Check for mercurial
-hg="`which hg`"
+# Check for git
+git="`which git`"
 
-if [ -z $hg ]
+if [ -z $git ]
 then
-    echo "This script requires mercurial Please install it."
+    echo "This script requires git, please install it."
     exit 1
 fi
 
@@ -23,7 +21,7 @@ if [ -z "$2" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]
 then
   echo "Usage: " `basename $0` "BITFIGHTER_VERSION CLONE_PATH_OR_URL"
   echo
-  echo "Example: `basename $0` 019a /home/blah/hg/bitfighter"
+  echo "Example: `basename $0` 019a /home/blah/git/bitfighter"
   echo
   exit 0
 fi
@@ -46,7 +44,7 @@ cd "$tmp_dir"
 # Do the clone
 echo " => Cloning $server_side_clone"
 echo "    (may take a minute)"
-hg clone "$server_side_clone" "$tarball_root" 1>/dev/null
+git clone "$server_side_clone" "$tarball_root" 1>/dev/null
 
 if [ ! -d $tarball_root ]; then
   echo "Your source did not check out properly.  Check the path. Exiting"
@@ -56,7 +54,7 @@ fi
 # Change to tag
 echo " => Changing to tag/changeset $tag"
 cd $tarball_root
-hg up -r "$tag" 1>/dev/null
+git checkout "$tag" 1>/dev/null
 cd ..
 
 # Our excludes from the main bitfighter source
@@ -64,6 +62,7 @@ exclude_file="$output_dir"/bf_excludes.txt
 
 excludes=$(cat <<EOF > $exclude_file
 $tarball_root/.hg*
+$tarball_root/.git*
 $tarball_root/lib
 $tarball_root/zap/resource.h
 $tarball_root/zap/ZAP.rc

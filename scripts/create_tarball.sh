@@ -66,7 +66,6 @@ $tarball_root/.git*
 $tarball_root/lib
 $tarball_root/zap/resource.h
 $tarball_root/zap/ZAP.rc
-$tarball_root/resource/fonts/*
 $tarball_root/resource/bitfighter.xpm
 $tarball_root/resource/redship64.png
 $tarball_root/bitfighter_test

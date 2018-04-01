@@ -42,7 +42,8 @@ class Fortune(object):
     def _on_msg(self, c, e):
         message = e.arguments[0]
         
-        if message == '' or message[0] == "<" or message[0:1] == " <":
+        skipText = "<" + self.bot._nickname
+        if message == '' or skipText in message:
             return
 
         if self.bot._nickname.lower() in message.lower():
